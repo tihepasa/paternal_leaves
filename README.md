@@ -12,3 +12,4 @@ This repository contains the following supplementary files:
 - `run_models.R`: the R codes to read the data and fit the models. Includes description of the data.
 - `run_models_cv.R`: the R codes to read the data and fit the models using a 10-fold cross-validation for model comparison. The actual model comparison is done in file `comparison.R`.
 - `comparison.R`: the R codes to compare the different model alternatives.
+- `barometer.qmd`, `barometer.pdf`: files including the R codes and tables considering Swedish media consumption by age and gender.
