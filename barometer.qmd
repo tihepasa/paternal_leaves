@@ -1,0 +1,125 @@
+---
+title: "FSD3201 Barometer for Swedish-speaking Finns 2009"
+format: 
+  html:
+    self-contained: true
+editor: visual
+---
+
+
+```{r, echo = FALSE, message=FALSE,warning=FALSE}
+library(dplyr)
+d <- read.csv2("daF3201_swe.csv") |> 
+  select(region = q1_lk, age = q2_lk, gender = q3,
+         starts_with("q16"), 
+         starts_with("q17"),
+         starts_with("q20"),
+         starts_with("q23")
+  ) |> 
+  mutate(
+    region = factor(
+      region, levels = 1:9, 
+      labels = c("Mellannyland",
+                 "Östra Nyland",
+                 "Västra Nyland",
+                 "Åboland",
+                 "Åland",
+                 "Södra Österbotten",
+                 "Mellersta Österbotten",
+                 "Norra Österbotten",
+                 "Finska Finland")),
+    age = factor(
+      age, levels = 1:6,
+      labels = c("18-24",
+                 "25-34",
+                 "35-44",
+                 "45-54",
+                 "55-64",
+                 "65-80")),
+    #The media consumption has categories "No", "Sometimes", "Often", "Daily".
+    consumes_swedish_radio =
+      if_else(q16 == 2, q16_6 > 2, FALSE), # Sveriges Radio
+    consumes_swedish_tv = 
+      if_else(q17 == 2, q17_4 > 2 | q17_5 > 2, FALSE), #SVT or TV4
+    consumes_swedish_news = 
+      if_else(q20 == 2, q20_6 > 2 | q20_7 > 2, FALSE), #Aftonbladet/Expressen/Other
+    consumes_swedish_social_media = 
+      q23_8 > 2, 
+  ) |> 
+  select(region, age, gender, starts_with("consumes")) |> 
+  filter(region != "Åland")
+d <- d[rowSums(is.na(d[,4:7])) != 4, ] #remove cases where all answers are missing
+# Create the aggregate Swedish media consumption variable and recode region and age:
+d <- d |> 
+  rowwise() |> 
+  mutate(
+    consumes_swedish_media = 
+      any(
+        consumes_swedish_radio, consumes_swedish_tv, consumes_swedish_news, 
+        consumes_swedish_social_media)
+  )
+d <- d |> 
+  mutate(
+    region = case_match(
+      region,
+      c("Mellannyland", "Östra Nyland", "Västra Nyland") ~ "Uusimaa",
+      "Åboland" ~ "Soutwest Finland",
+      c("Södra Österbotten", "Mellersta Österbotten", "Norra Österbotten") ~ "Ostrobothnia",
+      "Finska Finland" ~ "Other"
+      
+    ),
+    age = case_match(
+      age,
+      c("25-34", "35-44") ~ "25-44",
+      .default = "Others"
+    ),
+    gender = factor(gender, levels = 1:2, labels = c("Women", "Men"))
+  )
+```
+
+
+
+The data for Barometer for Swedish-speaking Finns 2009 can be obtained from https://services.fsd.tuni.fi/catalogue/FSD3201. Here we see how the consumption of media from Sweden varies geographically in Finland. The response `uses_swedish_media` is based on questions `q16_6` (radio), `q17_4` (tv), `q20_6` (news), and `q23_8` (social media), see the descriptions in the data catalogue. If person answered "often" or "daily" to any of the questions, we coded `uses_swedish_media` as `yes`. If the person answered all questions as "rarely" or "sometimes", the answer was coded as `no`, and in other cases the answer was set to `NA`.
+
+Results show that in Ostrobothnia, the consumption of Sweden-based media is somewhat higher than in other parts of Finland:
+
+
+
+```{r, echo = FALSE}
+knitr::kable(
+  prop.table(
+    table(
+      region = d$region, 
+      uses_swedish_media = factor(d$consumes_swedish_media, labels = c("no", "yes")), 
+      useNA = "ifany"),
+    1), digits = 2
+)
+```
+By region and age:
+
+```{r, echo = FALSE}
+knitr::kable(
+  prop.table(
+    table(
+      region = d$region, 
+      uses_swedish_media = factor(d$consumes_swedish_media, labels = c("no", "yes")), 
+      age = d$age,
+      useNA = "ifany"),
+    c(1, 3)), 
+  digits = 2)
+```
+
+By region and gender:
+
+```{r, echo = FALSE}
+knitr::kable(
+  prop.table(
+    table(
+      region = d$region, 
+      uses_swedish_media = factor(d$consumes_swedish_media, labels = c("no", "yes")),
+      gender = d$gender,
+      useNA = "ifany"),
+    c(1, 3)), 
+  digits = 2
+)
+```
