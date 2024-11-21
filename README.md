@@ -7,7 +7,7 @@ A preprint is available at https://doi.org/10.31235/osf.io/k27yw.
 ## Files
 
 This repository contains the following supplementary files:
-- `supplementary_material.pdf`: the online supplementary material including descriptions of the political and attitudinal backgrounds, data, results, and model comparisons.
+- [`supplementary_material.pdf`](https://github.com/tihepasa/paternal_leaves/blob/main/supplementary_material.pdf): the online supplementary material including descriptions of the political and attitudinal backgrounds, data, results, and model comparisons.
 - `data_leaves.rds`: the data, describing utilized paternal leave quotas and other demographic information on Finnish municipalities in 2009-2017. More detailed description of the data can be found from file `run_models.R`.
 - `data_leaves.xlsx`, `data_leaves.csv`: the data in formats easily accessible for programs other than R. These datasets do not include the geometry information for drawing the maps.
 - `model_bin_nophi.stan`, `model_bin_phi.stan`, `model_beta_bin_nophi.stan`, `model_beta_bin_phi.stan`: the stan codes to fit the models. Four alternatives. `model_bin_phi.stan` is the main model.
